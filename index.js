@@ -1,6 +1,6 @@
 const express = require('express')
 const cors = require('cors')
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const app = express()
 const port = process.env.PORT || 5000
@@ -24,7 +24,29 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
+    const gadgetCollection = client.db('gadgetDB').collection('gadget')
 
+    app.post('/gadget', async(req, res)=>{
+        const newGadget = req.body
+        const result = await gadgetCollection.insertOne(newGadget)
+        console.log(result)
+        res.send(result)
+    })
+
+    app.get('/gadget', async(req, res) => {
+        const cursor = gadgetCollection.find()
+        const result = await cursor.toArray()
+        res.send(result)
+    })
+
+    //get single data
+    app.get('/gadget/:id', async(req, res) => {
+        const id = req.params.id
+        const query = {_id: new ObjectId(id)}
+        const result = await gadgetCollection.findOne(query)
+        res.send(result)
+        console.log(result)
+    })
 
 
 
